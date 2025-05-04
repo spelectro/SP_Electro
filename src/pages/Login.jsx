@@ -15,25 +15,53 @@ function Login() {
     setLoading(true);
 
     try {
-      // Use the full backend URL
-      const response = await fetch('https://sp-electro-1.onrender.com/send-otp', {
+      console.log('Sending OTP request for email:', email);
+      
+      // Skip the login endpoint and directly use send-otp since that endpoint exists on the deployed server
+      const otpResponse = await fetch('https://sp-electro-1.onrender.com/send-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email }),
+        credentials: 'omit'
       });
 
-      const data = await response.json();
+      try {
+        // Check if the response is JSON
+        const otpContentType = otpResponse.headers.get('content-type');
+        if (!otpContentType || !otpContentType.includes('application/json')) {
+          const text = await otpResponse.text();
+          console.error('Non-JSON response received:', text);
+          
+          // If the response contains 'Unauthorized', it's likely an authorization error
+          if (text.includes('Unauthorized')) {
+            setError('Unauthorized email address. Only admin emails are allowed.');
+          } else {
+            setError('Server error: Invalid response format');
+          }
+          setLoading(false);
+          return;
+        }
 
-      if (response.ok) {
-        setOtpSent(true);
-        setError('');
-      } else {
-        setError(data.message || 'Failed to send OTP');
+        const otpData = await otpResponse.json();
+        console.log('OTP response:', otpData);
+
+        if (otpResponse.ok) {
+          console.log('OTP sent successfully');
+          setOtpSent(true);
+          setError('');
+        } else {
+          console.log('Failed to send OTP:', otpData.message);
+          setError(otpData.message || 'Failed to send OTP');
+        }
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        setError('Error processing server response');
       }
     } catch (err) {
-      setError('Network error. Please try again. ');
+      console.error('Error during login/OTP process:', err);
+      setError('Network error. Please try again. ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -45,33 +73,59 @@ function Login() {
     setLoading(true);
 
     try {
-      // Use the full backend URL
+      console.log('Verifying OTP for email:', email, 'OTP:', otp);
+      
       const response = await fetch('https://sp-electro-1.onrender.com/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, otp }),
+        credentials: 'omit'
       });
 
-      const data = await response.json();
+      try {
+        // Check if the response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          console.error('Non-JSON response received:', text);
+          
+          if (text.includes('Invalid') || text.includes('expired')) {
+            setError('Invalid or expired OTP. Please try again.');
+          } else {
+            setError('Server error: Invalid response format');
+          }
+          setLoading(false);
+          return;
+        }
 
-      if (response.ok) {
-        // Store authentication state
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', email);
-        
-        // Show success message
-        setError('');
-        alert('Login successful! Redirecting to admin panel...');
-        
-        // Redirect to admin page
-        navigate('/admin');
-      } else {
-        setError(data.message || 'Invalid OTP');
+        const data = await response.json();
+        console.log('OTP verification response:', data);
+
+        if (response.ok) {
+          console.log('OTP verification successful');
+          // Store authentication state
+          localStorage.setItem('isAuthenticated', 'true');
+          localStorage.setItem('userEmail', email);
+          
+          // Show success message
+          setError('');
+          alert('Login successful! Redirecting to admin panel...');
+          
+          // Redirect to admin page
+          navigate('/admin');
+        } else {
+          console.log('OTP verification failed:', data.message);
+          setError(data.message || 'Invalid OTP');
+        }
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        setError('Error processing server response');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      console.error('Error during OTP verification:', err);
+      setError('Network error. Please try again. ' + err.message);
     } finally {
       setLoading(false);
     }

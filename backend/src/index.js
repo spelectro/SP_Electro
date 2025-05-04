@@ -42,10 +42,31 @@ const upload = multer({ storage: storage });
 
 // Enable CORS for all routes
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://sp-electro.vercel.app/'] ,// Allow requests from your frontend
+    origin: ['http://localhost:5173', 'https://sp-electro.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
+
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+    const allowedOrigins = ['http://localhost:5173', 'https://sp-electro.vercel.app'];
+    const origin = req.headers.origin;
+    
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
+    
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    if (req.method === 'OPTIONS') {
+        return res.status(200).send();
+    }
+    
+    next();
+});
 
 app.use(express.json()); // to parse JSON request body
 
@@ -81,18 +102,24 @@ const otpStore = {};
 
 
 app.post('/send-otp', async (req, res) => {
+    console.log('Send OTP request received:', req.body);
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: 'Email is required' });
+    if (!email) {
+        console.log('Email missing in request');
+        return res.status(400).json({ message: 'Email is required' });
+    }
 
     const allowedEmails = ['SPELECTROSOL@GMAIL.COM','yashnagarkar124@gmail.com'];
 
     if (!allowedEmails.includes(email)) {
+        console.log('Unauthorized email for OTP:', email);
         return res.status(403).json({ message: 'Unauthorized email address' });
     }
 
-
+    console.log('Generating OTP for email:', email);
     const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
     otpStore[email] = otp;
+    console.log('OTP stored for email:', email, '(OTP hidden for security)');
 
     const mailOptions = {
         from: process.env.MAIL_USER,
@@ -103,21 +130,55 @@ app.post('/send-otp', async (req, res) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        res.json({ message: 'OTP sent successfully' });
+        console.log('OTP email sent successfully to:', email);
+        return res.status(200).json({ message: 'OTP sent successfully' });
     } catch (error) {
         console.error('Email send error:', error);
-        res.status(500).json({ message: 'Failed to send OTP' });
+        return res.status(500).json({ message: 'Failed to send OTP', error: error.message });
     }
 });
 
 app.post('/verify-otp', (req, res) => {
+    console.log('Verify OTP request received:', req.body);
     const { email, otp } = req.body;
-    if (otpStore[email] == otp) {
-        delete otpStore[email]; // OTP used, remove it
-        res.json({ message: 'OTP verified' });
-    } else {
-        res.status(400).json({ message: 'Invalid or expired OTP' });
+    
+    if (!email || !otp) {
+        console.log('Missing email or OTP in request');
+        return res.status(400).json({ message: 'Email and OTP are required' });
     }
+    
+    console.log('Stored OTPs:', Object.keys(otpStore).map(key => ({ email: key })));
+    console.log('Checking OTP for email:', email);
+    
+    if (otpStore[email] == otp) {
+        console.log('OTP verified successfully for:', email);
+        delete otpStore[email]; // OTP used, remove it
+        return res.status(200).json({ message: 'OTP verified' });
+    } else {
+        console.log('Invalid or expired OTP for:', email);
+        return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+});
+
+// Login endpoint to handle authentication
+app.post('/login', (req, res) => {
+    console.log('Login request received:', req.body);
+    const { email } = req.body;
+    const allowedEmails = ['SPELECTROSOL@GMAIL.COM','yashnagarkar124@gmail.com'];
+    
+    if (!email) {
+        console.log('Email missing in request');
+        return res.status(400).json({ message: 'Email is required' });
+    }
+    
+    if (!allowedEmails.includes(email)) {
+        console.log('Unauthorized email:', email);
+        return res.status(403).json({ message: 'Unauthorized email address' });
+    }
+    
+    console.log('Email authorized:', email);
+    // If email is authorized, proceed with OTP flow
+    return res.status(200).json({ message: 'Email authorized, proceed with OTP verification' });
 });
 
 // Contact form endpoint
