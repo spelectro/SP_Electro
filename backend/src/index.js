@@ -109,7 +109,7 @@ app.post('/send-otp', async (req, res) => {
         return res.status(400).json({ message: 'Email is required' });
     }
 
-    const allowedEmails = ['SPELECTROSOL@GMAIL.COM','yashnagarkar124@gmail.com'];
+    const allowedEmails = ['SPELECTROSOL@GMAIL.COM','yashnagarkar124@gmail.com','simranmehta2603@gmail.com'];
 
     if (!allowedEmails.includes(email)) {
         console.log('Unauthorized email for OTP:', email);
@@ -164,7 +164,7 @@ app.post('/verify-otp', (req, res) => {
 app.post('/login', (req, res) => {
     console.log('Login request received:', req.body);
     const { email } = req.body;
-    const allowedEmails = ['SPELECTROSOL@GMAIL.COM','yashnagarkar124@gmail.com'];
+    const allowedEmails = ['SPELECTROSOL@GMAIL.COM','yashnagarkar124@gmail.com','simranmehta2603@gmail.com'];
     
     if (!email) {
         console.log('Email missing in request');
