@@ -7,7 +7,7 @@ export default function HeroSection() {
     <section className="relative overflow-hidden text-white ">
       <img
         className="  absolute inset-0 w-full h-full object-cover "
-        src="src/assets/Rizta-simran.webp"
+        src="public/images/Rizta-simran.webp"
         alt=""
       />
 
