@@ -42,7 +42,7 @@ const upload = multer({ storage: storage });
 
 // Enable CORS for all routes
 app.use(cors({
-    origin: ['http://localhost:5173', process.env.FRONTEND_URL] ,// Allow requests from your frontend
+    origin: ['http://localhost:5173', 'https://sp-electro.vercel.app/'] ,// Allow requests from your frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type']
 }));
@@ -60,7 +60,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+    const imageUrl = `https://sp-electro-1.onrender.com/uploads/${req.file.filename}`;
     res.json({ imageUrl });
 });
 

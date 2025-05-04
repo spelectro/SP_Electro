@@ -16,7 +16,7 @@ function Login() {
 
     try {
       // Use the full backend URL
-      const response = await fetch('http://localhost:3000/send-otp', {
+      const response = await fetch('https://sp-electro-1.onrender.com/send-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ function Login() {
 
     try {
       // Use the full backend URL
-      const response = await fetch('http://localhost:3000/verify-otp', {
+      const response = await fetch('https://sp-electro-1.onrender.com/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

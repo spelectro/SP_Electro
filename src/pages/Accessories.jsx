@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Accessories() {
@@ -17,7 +17,7 @@ export default function Accessories() {
   const fetchAccessories = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/products?category=Accessory");
+      const response = await fetch("https://sp-electro-1.onrender.com/api/products?category=Accessory");
       if (!response.ok) {
         throw new Error("Failed to fetch accessories");
       }

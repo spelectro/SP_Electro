@@ -35,7 +35,7 @@ export default function AdminVehicles() {
   const fetchVehicles = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/products?category=EV");
+      const response = await fetch("https://sp-electro-1.onrender.com/api/products?category=EV");
       if (!response.ok) {
         throw new Error("Failed to fetch vehicles");
       }
@@ -73,7 +73,7 @@ export default function AdminVehicles() {
       const formData = new FormData();
       formData.append('image', imageFile);
       
-      const response = await fetch('http://localhost:3000/upload', {
+      const response = await fetch('https://sp-electro-1.onrender.com/upload', {
         method: 'POST',
         body: formData,
       });
@@ -114,7 +114,7 @@ export default function AdminVehicles() {
         category: "EV",
       };
 
-      const response = await fetch("http://localhost:3000/api/products", {
+      const response = await fetch("https://sp-electro-1.onrender.com/api/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -171,7 +171,7 @@ export default function AdminVehicles() {
         category: "EV",
       };
 
-      const response = await fetch(`http://localhost:3000/api/products/${currentVehicle._id}`, {
+      const response = await fetch(`https://sp-electro-1.onrender.com/api/products/${currentVehicle._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -203,7 +203,7 @@ export default function AdminVehicles() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`http://localhost:3000/api/products/${id}`, {
+      const response = await fetch(`https://sp-electro-1.onrender.com/api/products/${id}`, {
         method: "DELETE",
       });
 

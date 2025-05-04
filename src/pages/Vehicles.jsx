@@ -17,7 +17,7 @@ export default function Vehicles() {
   const fetchVehicles = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/products?category=EV");
+      const response = await fetch("https://sp-electro-1.onrender.com/api/products?category=EV");
       if (!response.ok) {
         throw new Error("Failed to fetch vehicles");
       }

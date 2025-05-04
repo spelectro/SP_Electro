@@ -30,7 +30,7 @@ function ContactSection({ handleCopyPhone }) {
     setStatus({ submitting: true, success: false, error: false, message: '' });
 
     try {
-      const response = await fetch('http://localhost:3000/api/contact', {
+      const response = await fetch('https://sp-electro-1.onrender.com/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
